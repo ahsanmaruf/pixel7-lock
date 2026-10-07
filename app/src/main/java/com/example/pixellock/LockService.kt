@@ -4,6 +4,7 @@ import android.accessibilityservice.AccessibilityService
 import android.os.VibrationAttributes
 import android.os.VibrationEffect
 import android.os.VibratorManager
+import android.view.KeyEvent
 import android.view.accessibility.AccessibilityEvent
 
 class LockService : AccessibilityService() {
@@ -16,6 +17,13 @@ class LockService : AccessibilityService() {
     override fun onUnbind(intent: android.content.Intent?): Boolean {
         instance = null
         return super.onUnbind(intent)
+    }
+
+    // Volume up locks the screen. The key is consumed, so it never changes the volume.
+    override fun onKeyEvent(event: KeyEvent): Boolean {
+        if (event.keyCode != KeyEvent.KEYCODE_VOLUME_UP) return false
+        if (event.action == KeyEvent.ACTION_DOWN && event.repeatCount == 0) lock()
+        return true
     }
 
     override fun onAccessibilityEvent(event: AccessibilityEvent?) = Unit
