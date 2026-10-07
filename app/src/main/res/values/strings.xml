@@ -1,0 +1,5 @@
+<resources>
+    <string name="app_name">Lock</string>
+    <string name="service_description">Lets the Lock button turn off the screen. It does not read or collect anything from your screen.</string>
+    <string name="enable_hint">Enable \"Lock\" under Installed apps, then tap the Lock icon again.</string>
+</resources>
