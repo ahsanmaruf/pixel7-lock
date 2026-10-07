@@ -1,8 +1,10 @@
 package com.example.pixellock
 
 import android.accessibilityservice.AccessibilityService
+import android.os.Build
 import android.os.VibrationAttributes
 import android.os.VibrationEffect
+import android.os.Vibrator
 import android.os.VibratorManager
 import android.view.KeyEvent
 import android.view.accessibility.AccessibilityEvent
@@ -30,13 +32,23 @@ class LockService : AccessibilityService() {
 
     override fun onInterrupt() = Unit
 
-    // Accessibility usage so the buzz isn't suppressed as the screen turns off.
+    // Accessibility usage (API 33+) so the buzz isn't suppressed as the screen turns off.
     private fun buzz() {
-        val vibrator = getSystemService(VibratorManager::class.java).defaultVibrator
-        vibrator.vibrate(
-            VibrationEffect.createPredefined(VibrationEffect.EFFECT_HEAVY_CLICK),
-            VibrationAttributes.createForUsage(VibrationAttributes.USAGE_ACCESSIBILITY)
-        )
+        val vibrator = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+            getSystemService(VibratorManager::class.java).defaultVibrator
+        } else {
+            getSystemService(Vibrator::class.java)
+        }
+        val effect = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+            VibrationEffect.createPredefined(VibrationEffect.EFFECT_HEAVY_CLICK)
+        } else {
+            VibrationEffect.createOneShot(40, VibrationEffect.DEFAULT_AMPLITUDE)
+        }
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            vibrator.vibrate(effect, VibrationAttributes.createForUsage(VibrationAttributes.USAGE_ACCESSIBILITY))
+        } else {
+            vibrator.vibrate(effect)
+        }
     }
 
     companion object {
